@@ -13,7 +13,6 @@ public class EarthquakeController : MonoBehaviour
 
     public float Intensity { get; private set; } = 0f;
     public bool IsQuaking { get; private set; } = false;
-
     public EnvironmentShake ActiveEnvironment { get; private set; }
 
     private void Awake()
@@ -28,7 +27,7 @@ public class EarthquakeController : MonoBehaviour
 
     private IEnumerator EarthquakeRoutine()
     {
-        // While (true) statement to infinite loop for demo purposes
+        // Infinite demo loop
         while (true)
         {
             IsQuaking = true;
@@ -39,7 +38,7 @@ public class EarthquakeController : MonoBehaviour
                 float normalizedTime = elapsed / totalDuration;
                 float curveValue = intensityCurve.Evaluate(normalizedTime);
 
-                // Smooth transitions using fade-in/out
+                // Smooth fade-in and fade-out
                 if (elapsed < fadeInTime)
                     Intensity = Mathf.SmoothStep(0f, curveValue, elapsed / fadeInTime);
                 else if (elapsed > totalDuration - fadeOutTime)
@@ -57,15 +56,13 @@ public class EarthquakeController : MonoBehaviour
             Intensity = 0f;
             IsQuaking = false;
 
-            // 2 seconds interval between quakes
+            // Wait between earthquakes
             yield return new WaitForSeconds(2f);
         }
-
     }
-    
+
     public void SetActiveEnvironment(EnvironmentShake env)
     {
         ActiveEnvironment = env;
-    }   
-
+    }
 }
