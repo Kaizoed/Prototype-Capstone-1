@@ -75,18 +75,19 @@ public class PlayerController : MonoBehaviour
     private void HandleCrouch()
     {
         if (playerInputHandler.crouchTriggered && !isCrouched)
-        {
             StartCrouch();
-        }
         else if (!playerInputHandler.crouchTriggered && isCrouched)
-        {
             StopCrouch();
-        }
 
         float targetCameraHeight = isCrouched ? (defaultCameraHeight - cameraCrouchOffset) : defaultCameraHeight;
         Vector3 camPos = mainCamera.transform.localPosition;
+
+        // If shake script exists, add its offset to camera position
+        CameraShaking shake = mainCamera.GetComponent<CameraShaking>();
+        Vector3 shakeOffset = shake != null ? shake.ShakePositionOffset : Vector3.zero;
+
         camPos.y = Mathf.Lerp(camPos.y, targetCameraHeight, Time.deltaTime * crouchTransitionSpeed);
-        mainCamera.transform.localPosition = camPos;
+        mainCamera.transform.localPosition = camPos + shakeOffset;
     }
 
     private void StartCrouch()
@@ -109,7 +110,14 @@ public class PlayerController : MonoBehaviour
     private void ApplyVerticalRotation(float rotationAmount)
     {
         verticalRotation = Mathf.Clamp(verticalRotation - rotationAmount, -upDownLookRange, upDownLookRange);
-        mainCamera.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
+        Quaternion lookRotation = Quaternion.Euler(verticalRotation, 0, 0);
+
+        // Combine look rotation with camera shake
+        CameraShaking shake = mainCamera.GetComponent<CameraShaking>();
+        if (shake != null)
+            mainCamera.transform.localRotation = lookRotation * shake.ShakeRotationOffset;
+        else
+            mainCamera.transform.localRotation = lookRotation;
     }
 
     private void HandleRotation()
